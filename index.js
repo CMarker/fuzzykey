@@ -25,7 +25,7 @@ exports.getUniqueValuesByKey = getUniqueValuesByKey;
 var loadedFiles = {};
 exports.loadedFiles = loadedFiles;
 
-function matchTokenSetArray(input, array) {
+function closest(input, array) {
     var best = 0;
     var bestIndex = 0;
     for (var x=0;x<array.length;x++) {
@@ -35,21 +35,21 @@ function matchTokenSetArray(input, array) {
             bestIndex = x;
         }
     }
-    return bestIndex;
+    return array[bestIndex];
 }
-exports.matchTokenSetArray = matchTokenSetArray;
+exports.closest = closest;
 
 function matchKeySet(testValue, key, filename) {
     if (typeof(filename) == "object") {
         var values = getUniqueValuesByKey(filename, key);
-        var ret = matchTokenSetArray(testValue, values);
+        var ret = closest(testValue, values);
         return ret;
     }
 
     try {
         var obj = JSON.parse(filename);
         var values = getUniqueValuesByKey(obj, key);
-        var ret = matchTokenSetArray(testValue, values);
+        var ret = closest(testValue, values);
         return ret;
     }
     catch (err) {
@@ -70,7 +70,7 @@ function matchKeySet(testValue, key, filename) {
         fileContent.values[key] = getUniqueValuesByKey(fileContent.file, key);
     }
     var values = fileContent.values[key];
-    var ret = matchTokenSetArray(testValue, values);
+    var ret = closest(testValue, values);
     return ret;
 }
 exports.matchKeySet = matchKeySet;
