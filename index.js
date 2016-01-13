@@ -35,6 +35,8 @@ function closest(input, array) {
             bestIndex = x;
         }
     }
+    if (score < didYouMean.threshold)
+        return "";
     return array[bestIndex];
 }
 exports.closest = closest;
@@ -203,8 +205,8 @@ function matchTokenSet(a,b) {
         first = b; second = a;
     }
 
-    first = first.replace(/,/g, ' ').replace(/[ ]+/g, ' ').toLowerCase();
-    second = second.replace(/,/g, ' ').replace(/[ ]+/g, ' ').toLowerCase();
+    first = first.replace(/,/g, ' ').replace(/[ ]+/g, ' ').replace(/[-]+/g, ' ').toLowerCase();
+    second = second.replace(/,/g, ' ').replace(/[ ]+/g, ' ').replace(/[-]+/g, ' ').toLowerCase();
 
     var firstList = first.split(' ');
     var secondList = second.split(' ');
