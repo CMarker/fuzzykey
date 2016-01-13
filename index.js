@@ -35,7 +35,7 @@ function closest(input, array) {
             bestIndex = x;
         }
     }
-    if (score < didYouMean.threshold)
+    if (best < didYouMean.threshold)
         return "";
     return array[bestIndex];
 }
