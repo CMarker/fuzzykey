@@ -3,6 +3,7 @@
  */
 
 var didYouMean = require('didyoumean');
+var natural = require('natural');
 
 exports.setThreshold = function(newThreshold) {
     didYouMean.threshold = newThreshold;
@@ -238,7 +239,7 @@ function matchTokenSet(a,b) {
     if (secondExtra.length)
         t2 = t2 + " " + secondExtra;
 
-    var z0 = getEditDistance(t0, t1);
+    /*var z0 = getEditDistance(t0, t1);
     var z1 = getEditDistance(t0, t2);
     var z2 = getEditDistance(t1, t2);
 
@@ -251,6 +252,20 @@ function matchTokenSet(a,b) {
     }
 
     var ret = 2.0 * t0.length / (first.length + second.length);
-    return ret;
+    return ret */
+
+    var z0 = natural.JaroWinklerDistance(t0, t1);
+    var z1 = natural.JaroWinklerDistance(t0, t2);
+    var z2 = natural.JaroWinklerDistance(t1, t2);
+
+    var best = z0;
+    if (z1 < best) {
+        best = z1;
+    }
+    if (z2 < best) {
+        best = z2;
+    }
+
+    return best;
 }
 exports.matchTokenSet = matchTokenSet;
