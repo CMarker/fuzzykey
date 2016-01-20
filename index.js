@@ -77,6 +77,16 @@ function matchKeySet(testValue, key, filename) {
 }
 exports.matchKeySet = matchKeySet;
 
+function cachedObj(filename) {
+    var fileContent = loadedFiles[filename];
+    if (!fileContent || !fileContent.file) {
+        fileContent = {};
+        fileContent.file = JSON.parse(require('fs').readFileSync(filename, 'utf8'));
+        loadedFiles[filename] = fileContent;
+    }
+    return fileContent;
+}
+
 function matchKey(testValue, key, filename) {
     if (typeof(filename) == "object") {
         var values = getUniqueValuesByKey(filename, key);
@@ -94,12 +104,7 @@ function matchKey(testValue, key, filename) {
         //not valid json, continue
     }
 
-    fileContent = loadedFiles[filename];
-    if (!fileContent || !fileContent.file) {
-        fileContent = {};
-        fileContent.file = JSON.parse(require('fs').readFileSync(filename, 'utf8'));
-        loadedFiles[filename] = fileContent;
-    }
+    var fileContent = cachedObj(filename);
     if (!fileContent || !fileContent.file)
         return "";
     if (!fileContent.values || !fileContent.values[key]) {
@@ -269,10 +274,17 @@ function matchTokenSet(a,b) {
 exports.matchTokenSet = matchTokenSet;
 
 function rowsWithKeyValue(array, key, value) {
+
+    var localArray = array;
+    if (array.length && typeof(array) == 'string') {
+        var fileContent = cachedObj(array);
+        localArray = fileContent.file;
+    }
+
     var ret = [];
-    for (var x=0;x<array.length;x++) {
-        if (array[x][key] == value) {
-            ret.push(array[x]);
+    for (var x=0;x<localArray.length;x++) {
+        if (localArray[x][key] == value) {
+            ret.push(localArray[x]);
         }
     }
 
