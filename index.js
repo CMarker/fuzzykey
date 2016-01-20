@@ -2,11 +2,10 @@
  * Created by Codi Marker on 1/6/16.
  */
 
-var didYouMean = require('didyoumean');
 var natural = require('natural');
-
+var threshold = 0.8;
 exports.setThreshold = function(newThreshold) {
-    didYouMean.threshold = newThreshold;
+    threshold = newThreshold;
 };
 
 function getUniqueValuesByKey(array, key) {
@@ -36,7 +35,7 @@ function closest(input, array) {
             bestIndex = x;
         }
     }
-    if (best < didYouMean.threshold)
+    if (best < threshold)
         return "";
     return array[bestIndex];
 }
@@ -81,14 +80,14 @@ exports.matchKeySet = matchKeySet;
 function matchKey(testValue, key, filename) {
     if (typeof(filename) == "object") {
         var values = getUniqueValuesByKey(filename, key);
-        var ret = didYouMean(testValue, values);
+        var ret = closest(testValue, values);
         return ret;
     }
 
     try {
         var obj = JSON.parse(filename);
         var values = getUniqueValuesByKey(obj, key);
-        var ret = didYouMean(testValue, values);
+        var ret = closest(testValue, values);
         return ret;
     }
     catch (err) {
@@ -109,12 +108,11 @@ function matchKey(testValue, key, filename) {
         fileContent.values[key] = getUniqueValuesByKey(fileContent.file, key);
     }
     var values = fileContent.values[key];
-    var ret = didYouMean(testValue, values);
+    var ret = closest(testValue, values);
     return ret;
 }
 exports.matchKey = matchKey;
 
-console.log("test");
 var MAX_INT = Math.pow(2,32) - 1; // We could probably go higher than this, but for practical reasons let's not.
 function getEditDistance(a, b, max) {
     // Handle null or undefined max.
@@ -269,3 +267,15 @@ function matchTokenSet(a,b) {
     return best;
 }
 exports.matchTokenSet = matchTokenSet;
+
+function rowsWithKeyValue(array, key, value) {
+    var ret = [];
+    for (var x=0;x<array.length;x++) {
+        if (array[x][key] == value) {
+            ret.push(array[x]);
+        }
+    }
+
+    return ret;
+}
+exports.rowsWithKeyValue = rowsWithKeyValue;
