@@ -25,11 +25,17 @@ exports.getUniqueValuesByKey = getUniqueValuesByKey;
 var loadedFiles = {};
 exports.loadedFiles = loadedFiles;
 
-function closest(input, array) {
+function closest(input, array, filters) {
     var best = 0;
     var bestIndex = 0;
     for (var x=0;x<array.length;x++) {
-        var score = matchTokenSet(input, array[x]);
+        var haystack = array[x];
+        if (filters && filters.length) {
+            filters.forEach(function (ignore) {
+                haystack = haystack.replace(ignore, ' ');
+            });
+        }
+        var score = matchTokenSet(input, haystack);
         if (score > best) {
             best = score;
             bestIndex = x;
@@ -41,17 +47,17 @@ function closest(input, array) {
 }
 exports.closest = closest;
 
-function matchKeySet(testValue, key, filename) {
+function matchKeySet(testValue, key, filename, filters) {
     if (typeof(filename) == "object") {
         var values = getUniqueValuesByKey(filename, key);
-        var ret = closest(testValue, values);
+        var ret = closest(testValue, values, filters);
         return ret;
     }
 
     try {
         var obj = JSON.parse(filename);
         var values = getUniqueValuesByKey(obj, key);
-        var ret = closest(testValue, values);
+        var ret = closest(testValue, values, filters);
         return ret;
     }
     catch (err) {
@@ -72,7 +78,7 @@ function matchKeySet(testValue, key, filename) {
         fileContent.values[key] = getUniqueValuesByKey(fileContent.file, key);
     }
     var values = fileContent.values[key];
-    var ret = closest(testValue, values);
+    var ret = closest(testValue, values, filters);
     return ret;
 }
 exports.matchKeySet = matchKeySet;
